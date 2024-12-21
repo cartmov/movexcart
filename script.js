@@ -33,25 +33,7 @@ form.addEventListener('submit', (e) => {
         return;
     }
 
-    if (!validateAddress(homeAddress)) {
-        alert('Please enter a valid home address');
-        return;
-    }
 
-    if (!validateState(state)) {
-        alert('Please enter a valid state');
-        return;
-    }
-
-    if (!validateCountry(country)) {
-        alert('Please enter a valid country');
-        return;
-    }
-
-    if (!validatePhoneNumber(phoneNumber)) {
-        alert('Please enter a valid phone number');
-        return;
-    }
 
     // Add user
     addUser(name, email, homeAddress, state, country, phoneNumber);
@@ -154,22 +136,4 @@ function validateEmail(email) {
 return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/.test(email);
 }
 
-// Function to validate address
-function validateAddress(address) {
-return address.length > 0 && /^[a-zA-Z0-9\s,.-]+$/.test(address);
-}
 
-// Function to validate state
-function validateState(state) {
-return state.length > 0 && /^[a-zA-Z\s]+$/.test(state);
-}
-
-// Function to validate country
-function validateCountry(country) {
-return country.length > 0 && /^[a-zA-Z\s]+$/.test(country);
-}
-
-// Function to validate phone number
-function validatePhoneNumber(phoneNumber) {
-return phoneNumber.length > 0 && /^\d{3}-\d{3}-\d{4}$/.test(phoneNumber);
-}
