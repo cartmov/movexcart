@@ -2,11 +2,9 @@
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
   // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
     apiKey: "AIzaSyDgnbfD2WyDTvPYDPKSoEEvQJOoT3e9MfA",
     authDomain: "movexcart.firebaseapp.com",
@@ -20,21 +18,16 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
+  const db = getFirestore(app);
 
-
-
-// Get the form and users list elements
-const form = document.getElementById('user-form');
-const nameInput = document.getElementById('name');
-const emailInput = document.getElementById('email');
-const homeAddressInput = document.getElementById('home-address');
-const stateInput = document.getElementById('state');
-const countryInput = document.getElementById('country');
-const phoneNumberInput = document.getElementById('phone-number');
-
-// Load existing users from JSON file
-loadUsers();
-
+  // Get the form elements
+  const form = document.getElementById('user-form');
+  const nameInput = document.getElementById('name');
+  const emailInput = document.getElementById('email');
+  const homeAddressInput = document.getElementById('home-address');
+  const stateInput = document.getElementById('state');
+  const countryInput = document.getElementById('country');
+  const phoneNumberInput = document.getElementById('phone-number');
 
   // Add event listener to form submission
   form.addEventListener('submit', (e) => {
@@ -58,9 +51,9 @@ loadUsers();
     }
 
     
-
-    // Add user to Firebase Realtime Database
-    set(ref(db, 'users/' + name), {
+    
+    // Add user to Firestore
+    addDoc(collection(db, 'users'), {
       name,
       email,
       homeAddress,
@@ -79,27 +72,31 @@ loadUsers();
       });
   });
 
-  // Function to load existing users from Firebase Realtime Database
+  // Function to load existing users from Firestore
   function loadUsers() {
-    const usersRef = ref(db, 'users');
-    onValue(usersRef, (snapshot) => {
-      const usersList = document.getElementById('users-list');
-      usersList.innerHTML = '';
-      snapshot.forEach((childSnapshot) => {
-        const childKey = childSnapshot.key;
-        const childData = childSnapshot.val();
-        const listItem = document.createElement('li');
-        listItem.textContent = `
-          Name: ${childData.name}
-          Email: ${childData.email}
-          Home Address: ${childData.homeAddress}
-          State: ${childData.state}
-          Country: ${childData.country}
-          Phone Number: ${childData.phoneNumber}
-        `;
-        usersList.appendChild(listItem);
+    const usersRef = collection(db, 'users');
+    getDocs(usersRef)
+      .then((querySnapshot) => {
+        const usersList = document.getElementById('users-list');
+        usersList.innerHTML = '';
+        querySnapshot.forEach((doc) => {
+          const user = doc.data();
+          const listItem = document.createElement('li');
+          listItem.textContent = `
+            Name: ${user.name}
+            Email: ${user.email}
+            Home Address: ${user.homeAddress}
+            State: ${user.state}
+            Country: ${user.country}
+            Phone Number: ${user.phoneNumber}
+          `;
+          usersList.appendChild(listItem);
+        });
+      })
+      .catch((error) => {
+        console.error('Error loading users:', error);
+        alert('Error loading users. Please try again later.');
       });
-    });
   }
 
 
