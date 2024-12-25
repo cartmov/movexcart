@@ -1,7 +1,30 @@
 
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDgnbfD2WyDTvPYDPKSoEEvQJOoT3e9MfA",
+    authDomain: "movexcart.firebaseapp.com",
+    projectId: "movexcart",
+    storageBucket: "movexcart.firebasestorage.app",
+    messagingSenderId: "37228554491",
+    appId: "1:37228554491:web:e88841fb0cdf4eab6ee85e",
+    measurementId: "G-Q0KLHQH2CP"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+
+
 // Get the form and users list elements
 const form = document.getElementById('user-form');
-const usersList = document.getElementById('users-list');
 const nameInput = document.getElementById('name');
 const emailInput = document.getElementById('email');
 const homeAddressInput = document.getElementById('home-address');
@@ -12,8 +35,9 @@ const phoneNumberInput = document.getElementById('phone-number');
 // Load existing users from JSON file
 loadUsers();
 
-// Add event listener to form submission
-form.addEventListener('submit', (e) => {
+
+  // Add event listener to form submission
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
     const name = nameInput.value.trim();
     const email = emailInput.value.trim();
@@ -24,107 +48,61 @@ form.addEventListener('submit', (e) => {
 
     // Input validation
     if (!validateName(name)) {
-        alert('Please enter a valid name');
-        return;
+      alert('Please enter a valid name');
+      return;
     }
 
     if (!validateEmail(email)) {
-        alert('Please enter a valid email address');
-        return;
+      alert('Please enter a valid email address');
+      return;
     }
 
+    
 
-
-    // Add user
-    addUser(name, email, homeAddress, state, country, phoneNumber);
-});
-
-// Function to load existing users from JSON file
-function loadUsers() {
-    fetch('data.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const users = data.users;
-            usersList.innerHTML = '';
-            users.forEach(user => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `
-                    Name: ${user.name}
-                    Email: ${user.email}
-                    Home Address: ${user.homeAddress}
-                    State: ${user.state}
-                    Country: ${user.country}
-                    Phone Number: ${user.phoneNumber}
-                `;
-                usersList.appendChild(listItem);
-            });
-        })
-        .catch(error => {
-            console.error('Error loading users:', error);
-            alert('Error loading users. Please try again later.');
-        });
-}
-
-// Function to add new user to JSON file
-function addUser(name, email, homeAddress, state, country, phoneNumber) {
-    fetch('data.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const users = data.users;
-            users.push({
-                name,
-                email,
-                homeAddress,
-                state,
-                country,
-                phoneNumber
-            });
-            saveUsers(users);
-        })
-        .catch(error => {
-            console.error('Error adding user:', error);
-            alert('Error adding user. Please try again later.');
-        });
-}
-
-
-// Function to save updated users list to JSON file
-function saveUsers(users) {
-const jsonData = { users };
-const json = JSON.stringify(jsonData);
-
-fetch('data.json', {
-    method: 'PUT',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: json
-})
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
+    // Add user to Firebase Realtime Database
+    set(ref(db, 'users/' + name), {
+      name,
+      email,
+      homeAddress,
+      state,
+      country,
+      phoneNumber,
     })
-    .then(() => {
+      .then(() => {
+        console.log('User added successfully!');
         loadUsers();
         form.reset();
-    })
-    .catch(error => {
-        console.error('Error saving users:', error);
-        alert('Error saving users. Please try again later.');
+      })
+      .catch((error) => {
+        console.error('Error adding user:', error);
+        alert('Error adding user. Please try again later.');
+      });
+  });
+
+  // Function to load existing users from Firebase Realtime Database
+  function loadUsers() {
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+      const usersList = document.getElementById('users-list');
+      usersList.innerHTML = '';
+      snapshot.forEach((childSnapshot) => {
+        const childKey = childSnapshot.key;
+        const childData = childSnapshot.val();
+        const listItem = document.createElement('li');
+        listItem.textContent = `
+          Name: ${childData.name}
+          Email: ${childData.email}
+          Home Address: ${childData.homeAddress}
+          State: ${childData.state}
+          Country: ${childData.country}
+          Phone Number: ${childData.phoneNumber}
+        `;
+        usersList.appendChild(listItem);
+      });
     });
-}
+  }
+
+
 
 // Function to validate name
 function validateName(name) {
