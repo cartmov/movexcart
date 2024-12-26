@@ -73,8 +73,13 @@ const saveMessages = (name, emailid, msgContent, homeAddress, state, country, ph
     country: country,
     phoneNumber: phoneNumber,
   })
+  .then(() => {
+    console.log('Message saved successfully!');
+    alert('Message saved successfully!');
+  })
   .catch((error) => {
     console.error('Error saving message:', error);
+    alert('Error saving message!');
   });
 };
 
