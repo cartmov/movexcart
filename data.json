@@ -1,0 +1,25 @@
+{
+  "trackingNumbers": [
+    {
+      "trackingNumber": "12345",
+      "name": "John Doe",
+      "address": "123 Main St",
+      "status": "On hold",
+      "email": "ceceli****@gmail.com",
+      "currentLocation": "heading to swizaland"
+      
+    },
+    {
+      "trackingNumber": "67890",
+      "name": "Jane Doe",
+      "address": "456 Elm St",
+      "status": "In Transit"
+    },
+    {
+      "trackingNumber": "34567",
+      "name": "Bob Smith",
+      "address": "789 Oak St",
+      "status": "Delivered"
+    }
+  ]
+}
